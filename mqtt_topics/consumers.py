@@ -29,14 +29,14 @@ class MyMqttConsumer(MqttConsumer):
         print("Forwarded data to WebSocket group")
 
         # Save to MongoDB
-        # try:
-        #     result = collection.insert_one(data)
-        #     if result.acknowledged:
-        #         print(f'Data sent successfully. Total documents: {collection.count_documents({})}')
-        #     else:
-        #         print(f'Data insertion failed.')
-        # except Exception as e:
-        #     print(f"Error while inserting data into MongoDB: {str(e)}")
+        try:
+            result = collection.insert_one(data)
+            if result.acknowledged:
+                print(f'Data sent successfully. Total documents: {collection.count_documents({})}')
+            else:
+                print(f'Data insertion failed.')
+        except Exception as e:
+            print(f"Error while inserting data into MongoDB: {str(e)}")
 
     async def disconnect(self, code):
         await self.unsubscribe('sensors/data')
