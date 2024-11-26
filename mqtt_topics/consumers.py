@@ -19,14 +19,14 @@ class MyMqttConsumer(MqttConsumer):
         print('And QOS:', mqtt_message['qos'])
         data = json.loads(mqtt_message['payload'])
 
-        # await self.channel_layer.group_send(
-        #     self.room_group_name,
-        #     {
-        #         "type": "send_sensor_data",
-        #         "payload": data,
-        #     },
-        # )
-        # print("Forwarded data to WebSocket group")
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "send_sensor_data",
+                "payload": data,
+            },
+        )
+        print("Forwarded data to WebSocket group")
 
         # Save to MongoDB
         # try:
