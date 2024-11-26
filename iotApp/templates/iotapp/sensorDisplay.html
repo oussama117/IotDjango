@@ -1,0 +1,29 @@
+{% extends "base.html" %} 
+{% block title %}sensorWsData{% endblock %} 
+{% block content %}
+
+<h2>welcome to sensorWsData</h2>
+{% for cheep in allcheep %}
+<!-- <ul style="padding: 10px; border: 1px solid black; width: max-content">
+  <li style="padding: 10px">id: {{cheep.idNecklace}}</li>
+  <li style="padding: 10px">acc: {{cheep.acceleration}}</li>
+  <li style="padding: 10px">gyr: {{cheep.gyroscope}}</li>
+  <li style="padding: 10px">pulse: {{cheep.pulse}}</li>
+  <li style="padding: 10px">temp: {{cheep.temperature}}</li>
+  <li style="padding: 10px">time: {{cheep.time}}</li>
+</ul> -->
+{% endfor %} 
+<h3 id="data"> data </h3>
+<script type="text/javascript">
+
+let url = `ws://${window.location.host}/ws/socket-server/`;
+const sensorWsData = new WebSocket(url);
+sensorWsData.onmessage = function(e){
+    let data = JSON.parse(e.data);
+    console.log('data: ',data);
+    document.querySelector("#data").textContent = e.data;
+}
+
+</script>
+
+{% endblock %}
