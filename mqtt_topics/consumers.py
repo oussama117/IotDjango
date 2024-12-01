@@ -7,10 +7,10 @@ class MyMqttConsumer(MqttConsumer):
         await self.subscribe('sensors/data', 2)
         print("Subscribed to 'sensors/data'")
         self.room_group_name = "send_sensor_data"
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name,
-        )
+        # await self.channel_layer.group_add(
+        #     self.room_group_name,
+        #     self.channel_name,
+        # )
         print("Added to room_group 'send_sensor_data'")
 
     async def receive(self, mqtt_message):
@@ -19,25 +19,36 @@ class MyMqttConsumer(MqttConsumer):
         print('And QOS:', mqtt_message['qos'])
         data = json.loads(mqtt_message['payload'])
 
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "send_sensor_data",
-                "payload": data
-            },
-        )
+        # await self.channel_layer.group_send(
+        #     self.room_group_name,
+        #     {
+        #         "type": "send_sensor_data",
+        #         "payload": data
+        #     },
+        # )
         print("Forwarded data to WebSocket group")
 
         # Save to MongoDB
-        # try:
-        #     result = collection.insert_one(data)
-        #     if result.acknowledged:
-        #         print(f'Data sent successfully. Total documents: {collection.count_documents({})}')
-        #     else:
-        #         print(f'Data insertion failed.')
-        # except Exception as e:
-        #     print(f"Error while inserting data into MongoDB: {str(e)}")
+        new_data_point = {
+            'time': data['time'],
+            'acc': data['acc'],
+            'gyr': data['gyr'],
+            'pulse': data['pulse'],
+            'temp': data['temp']
+        }
+        result = collection.update_one(
+            {'idNecklace': data['idNecklace']},  # Find the document by idNecklace
+            {'$push': {'data': new_data_point}}  # Push new_data to the 'data' array
+        )
 
+        if result.matched_count == 0:
+            # If no document was found, create a new one
+            collection.insert_one({
+                'idNecklace': data['idNecklace'],
+                'data': [new_data_point]
+            })
+        res = collection.find_one({'idNecklace':data['idNecklace']})
+        print(f"inserted data into MongoDB: {res}")
     
     async def send_sensor_data(self, event):
         message = event["payload"]
@@ -52,3 +63,5 @@ class MyMqttConsumer(MqttConsumer):
             )
             print(f"Disconnected and unsubscribed from 'sensors/data'")
             pass
+    
+        
