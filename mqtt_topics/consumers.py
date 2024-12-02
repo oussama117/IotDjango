@@ -4,8 +4,8 @@ from db_connection import collection
 
 class MyMqttConsumer(MqttConsumer):
     async def connect(self):
-        await self.subscribe('sensors/data', 2)
-        print("Subscribed to 'sensors/data'")
+        await self.subscribe('esp32/sensors/data', 2)
+        print("Subscribed to 'esp32/sensors/data'")
         self.room_group_name = "send_sensor_data"
         # await self.channel_layer.group_add(
         #     self.room_group_name,
